@@ -3,16 +3,24 @@ package springData.dto;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
-import java.util.List;
 
 @Component
-public class FlightDTO {
+public class FlightDto {
     private String airline;
     private String origin;
     private String destination;
     private String status;
     private Date departureDate;
     private Date arrivalDate;
+    private Integer flightNumber;
+
+    public Integer getFlightNumber() {
+        return flightNumber;
+    }
+
+    public void setFlightNumber(Integer flightNumber) {
+        this.flightNumber = flightNumber;
+    }
 
     public String getAirline() {
         return airline;

@@ -15,9 +15,12 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Integer> {
     public List<User> findAllByRoleContains(String s);
     public User findUserByBookings(Booking b);
-    public List<User> findAllByUserName(String username);
+    public User findUserByUserName(String username);
     public User findAllByUserDetails(UserDetails ud);
     void deleteUserById(Integer id);
+    @Override
+    void deleteAll();
+
     @Query(value = "SELECT * FROM booking WHERE user_id = :id", nativeQuery = true)
     public List<Booking> findAllBookingsById(@Param("id") Integer id);
     @Query(value = "SELECT * FROM flight WHERE flight_id IN (SELECT flight_id FROM booking_flight WHERE booking_id = :bookingId)", nativeQuery = true)

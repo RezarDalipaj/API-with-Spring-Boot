@@ -1,18 +1,15 @@
 package springData.controller;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import springData.dto.BookingDTO;
-import springData.dto.UserDTO;
-import springData.model.Booking;
+import springData.dto.UserDto;
+import springData.model.Flight;
 import springData.model.User;
-import springData.model.UserDetails;
 import springData.service.UserDetailsService;
 import springData.service.UserService;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -24,7 +21,7 @@ public class UserController {
         this.userDetailsService = userDetailsService;
     }
     @GetMapping
-    public List<UserDTO> get(){
+    public List<UserDto> get(){
         try {
             return userService.findAll();
         }
@@ -33,35 +30,34 @@ public class UserController {
         }
     }
     @GetMapping("/{id}")
-    public UserDTO getById(@PathVariable(name = "id") Integer id){
-        UserDTO userDTO = userService.findById(id);
+    public UserDto getById(@PathVariable(name = "id") Integer id){
+        UserDto userDTO = userService.findById(id);
         if (userDTO != null){
             return userDTO;
         }
         throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
     }
-    @GetMapping("/username/{username}")
-    public List<UserDTO> getUsersByUsername(@PathVariable(name = "username") String username){
-            List<UserDTO> userDTOList = userService.findAllByUserName(username);
-            if (userDTOList.isEmpty())
+    @GetMapping("/username")
+    public UserDto getUsersByUsername(@RequestParam(name = "username") String username){
+            UserDto userDTO = userService.findUserByUserName(username);
+            if (userDTO == null)
                 throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
-            return userDTOList;
+            return userDTO;
     }
     @GetMapping("/role/{role}")
-    public List<UserDTO> getUsersByRole(@PathVariable(name = "role") String role){
-        List<UserDTO> userDTOList = userService.findAllByRoleContains(role);
+    public List<UserDto> getUsersByRole(@PathVariable(name = "role") String role){
+        List<UserDto> userDTOList = userService.findAllByRoleContains(role);
         if (userDTOList.isEmpty())
             throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
         return userDTOList;
     }
     @PostMapping
-    public UserDTO post(@RequestBody User user){
+    public UserDto post(@RequestBody UserDto userDTO){
         try {
-            user.setId(null);
-            user.getUserDetails().setTheUser(user);
-            UserDTO userDTO = userService.save(user);
-            userDetailsService.save(user.getUserDetails());
-            return userDTO;
+            if (userDTO.getUserName() == null)
+                throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
+            User user = userService.convertDtoToUserAdd(userDTO);
+            return userService.save(user);
         }
         catch (Exception e){
             throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
@@ -69,15 +65,15 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO put(@PathVariable(name = "id") Integer id, @RequestBody User user){
+    public UserDto put(@PathVariable(name = "id") Integer id, @RequestBody UserDto userDTO){
         try {
+            if (userDTO.getUserName() == null)
+                throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
             if (userService.findById(id) != null){
-                user.getUserDetails().setTheUser(user);
-                user.setId(id);
-                user.getUserDetails().setId(id);
-                userService.save(user);
-                userDetailsService.save(user.getUserDetails());
-                return userService.save(user);
+                User user = userService.convertDtoToUserUpdate(userDTO, id);
+                if (user!=null)
+                    return userService.save(user);
+                throw  new ResponseStatusException(HttpStatus.resolve(400), "Not found");
             }
             throw  new ResponseStatusException(HttpStatus.resolve(404), "Not found");
         }
@@ -86,12 +82,20 @@ public class UserController {
          }
     }
     @DeleteMapping("/{id}")
-    public UserDTO delete(@PathVariable(name = "id") Integer id){
-        UserDTO userDTO = userService.findById(id);
+    public UserDto delete(@PathVariable(name = "id") Integer id){
+        UserDto userDTO = userService.findById(id);
         if (userDTO != null){
             userService.deleteById(id);
             return userDTO;
         }
         throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+    }
+    @DeleteMapping
+    public List<UserDto> deleteAll(){
+        try {
+            return userService.deleteAll();
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+        }
     }
 }

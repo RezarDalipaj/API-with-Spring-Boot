@@ -3,10 +3,8 @@ package springData.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import springData.dto.FlightDTO;
-import springData.dto.UserDTO;
+import springData.dto.FlightDto;
 import springData.model.Flight;
-import springData.model.User;
 import springData.service.FlightService;
 
 import java.util.List;
@@ -19,7 +17,7 @@ public class FlightController {
         this.flightService = flightService;
     }
     @GetMapping
-    public List<FlightDTO> get(){
+    public List<FlightDto> get(){
         try {
             return flightService.findAll();
         }
@@ -28,17 +26,19 @@ public class FlightController {
         }
     }
     @GetMapping("/{id}")
-    public FlightDTO getById(@PathVariable(name = "id") Integer id){
-        FlightDTO flightDTO = flightService.findById(id);
+    public FlightDto getById(@PathVariable(name = "id") Integer id){
+        FlightDto flightDTO = flightService.findById(id);
         if (flightDTO != null){
             return flightDTO;
         }
         throw  new ResponseStatusException(HttpStatus.resolve(404), "Flight doesn't exist");
     }
     @PostMapping
-    public FlightDTO post(@RequestBody Flight flight){
+    public FlightDto post(@RequestBody FlightDto flightDto){
         try {
-        flight.setId(null);
+        if (flightDto.getFlightNumber() == null)
+            throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
+        Flight flight = flightService.convertDtoToFlightAdd(flightDto);
         return flightService.save(flight);
         }
         catch (Exception e){
@@ -46,11 +46,15 @@ public class FlightController {
         }
     }
     @PutMapping("/{id}")
-    public FlightDTO put(@PathVariable(name = "id") Integer id, @RequestBody Flight flight){
+    public FlightDto put(@PathVariable(name = "id") Integer id, @RequestBody FlightDto flightDto){
         try {
-            if (flightService.findById(id) != null){
-                flight.setId(id);
-                return flightService.save(flight);
+            if (flightDto.getFlightNumber() == null)
+                throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
+            if (flightService.findByIdd(id) != null){
+                Flight flight = flightService.convertDtoToFlightUpdate(flightDto, id);
+                if (flight != null)
+                    return flightService.save(flight);
+                throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
             }
             throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
         }
@@ -59,12 +63,20 @@ public class FlightController {
         }
     }
     @DeleteMapping("/{id}")
-    public FlightDTO delete(@PathVariable(name = "id") Integer id){
-        FlightDTO flightDTO = flightService.findById(id);
+    public FlightDto delete(@PathVariable(name = "id") Integer id){
+        FlightDto flightDTO = flightService.findById(id);
         if (flightDTO != null){
             flightService.deleteById(id);
             return flightDTO;
         }
         throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+    }
+    @DeleteMapping
+    public List<FlightDto> deleteAll(){
+        try {
+            return flightService.deleteAll();
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+        }
     }
 }

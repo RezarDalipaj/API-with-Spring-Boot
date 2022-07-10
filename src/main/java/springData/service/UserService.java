@@ -1,29 +1,29 @@
 package springData.service;
 
-import springData.dto.BookingDTO;
-import springData.dto.FlightDTO;
-import springData.dto.UserDTO;
+import springData.dto.FlightDto;
+import springData.dto.UserDto;
 import springData.model.Booking;
 import springData.model.User;
 import springData.model.UserDetails;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
-    UserDTO save(User u);
-    UserDTO findById(Integer id);
+    UserDto save(User user);
+    UserDto findById(Integer id);
     User findByIdd(Integer id);
-    List<UserDTO> findAll();
-    UserDTO delete(User u);
+    List<UserDto> findAll();
+    UserDto delete(User u);
     void deleteById(Integer id);
-    UserDTO converter(User u);
-    UserDTO findUserByBookings(Booking b);
-    List<UserDTO> findAllByRoleContains(String s);
-    List<UserDTO> findAllByUserName(String username);
-    UserDTO findAllByUserDetails(UserDetails ud);
+    List<UserDto> deleteAll();
+    User convertDtoToUserAdd(UserDto userDto);
+    User convertDtoToUserUpdate(UserDto userDto, Integer id);
+    UserDto findUserByBookings(Booking b);
+    List<UserDto> findAllByRoleContains(String s);
+    UserDto findUserByUserName(String username);
+    UserDto findAllByUserDetails(UserDetails ud);
     List<Booking> findAllBookings(Integer id);
-    List<FlightDTO> findAllFlights(int id);
+    List<FlightDto> findAllFlights(int id);
 
 
 }

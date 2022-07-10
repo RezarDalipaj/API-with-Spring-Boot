@@ -1,18 +1,22 @@
 package springData.service;
 
-import springData.dto.FlightDTO;
+import springData.dto.FlightDto;
 import springData.model.Flight;
 
 import java.util.List;
-import java.util.Optional;
+
 public interface FlightService {
-    FlightDTO save(Flight f);
-    FlightDTO findById(Integer id);
+    FlightDto save(Flight f);
+    FlightDto findById(Integer id);
     public Flight findByIdd(Integer id);
-    List<FlightDTO> findAll();
+    List<FlightDto> findAll();
     void delete(Flight f);
     void deleteById(Integer id);
-    FlightDTO converter(Flight f);
+    List<FlightDto> deleteAll();
+    FlightDto converter(Flight f);
+    Flight convertDtoToFlightAdd(FlightDto flightDTO);
+    Flight convertDtoToFlightUpdate(FlightDto flightDTO, Integer id);
+    Flight findFlightByFlightNumber(Integer flightNumber);
     List<Integer> findAllBookings(Integer id);
     List<Integer> findAllUsers(int id);
 

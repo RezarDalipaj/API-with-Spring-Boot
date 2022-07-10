@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     void deleteBookingById(Integer id);
+    @Override
+    void deleteAll();
     @Query(value = "SELECT flight_id FROM new_db.booking_flight WHERE booking_id = :id", nativeQuery = true)
     List<Integer> findAllById(@Param("id") Integer id);
 }

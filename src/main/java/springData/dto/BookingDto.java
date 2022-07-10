@@ -1,15 +1,28 @@
 package springData.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.util.List;
 @Component
-public class BookingDTO {
+public class BookingDto {
     private String userName;
     private String status;
     private Date bookingDate;
-    private List<FlightDTO> flightList;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<FlightDto> flightList;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Integer> flightNumbers;
+
+    public List<Integer> getFlightNumbers() {
+        return flightNumbers;
+    }
+
+    public void setFlightNumbers(List<Integer> flightNumbers) {
+        this.flightNumbers = flightNumbers;
+    }
 
     public String getUserName() {
         return userName;
@@ -35,11 +48,11 @@ public class BookingDTO {
         this.bookingDate = bookingDate;
     }
 
-    public List<FlightDTO> getFlightList() {
+    public List<FlightDto> getFlightList() {
         return flightList;
     }
 
-    public void setFlightList(List<FlightDTO> flightList) {
+    public void setFlightList(List<FlightDto> flightList) {
         this.flightList = flightList;
     }
 

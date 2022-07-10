@@ -3,8 +3,8 @@ package springData.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import springData.dto.BookingDTO;
-import springData.dto.FlightDTO;
+import springData.dto.BookingDto;
+import springData.dto.FlightDto;
 import springData.model.Booking;
 import springData.model.Flight;
 import springData.model.User;
@@ -12,8 +12,6 @@ import springData.service.BookingService;
 import springData.service.FlightService;
 import springData.service.UserService;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -28,7 +26,7 @@ public class BookingController {
         this.userService = userService;
     }
     @GetMapping
-    public List<BookingDTO> get(){
+    public List<BookingDto> get(){
         try {
             return bookingService.findAll();
         }
@@ -37,19 +35,17 @@ public class BookingController {
         }
     }
     @GetMapping("/{id}")
-    public BookingDTO getById(@PathVariable(name = "id") Integer id){
-        BookingDTO bookingDTO = bookingService.findById(id);
+    public BookingDto getById(@PathVariable(name = "id") Integer id){
+        BookingDto bookingDTO = bookingService.findById(id);
         if (bookingDTO != null){
             return bookingDTO;
         }
-        throw  new ResponseStatusException(HttpStatus.resolve(404), "Flight doesn't exist");
+        throw  new ResponseStatusException(HttpStatus.resolve(404), "Booking doesn't exist");
     }
     @PostMapping
-    public BookingDTO post(@RequestBody Booking booking){
+    public BookingDto post(@RequestBody BookingDto bookingDto){
         try {
-            booking.setId(null);
-            setFlights(booking);
-            setUser(booking);
+            Booking booking = bookingService.convertDtoToBookingAdd(bookingDto);
             return bookingService.save(booking);
         }
         catch (Exception e){
@@ -57,42 +53,33 @@ public class BookingController {
         }
     }
     @PutMapping("/{id}")
-    public BookingDTO put(@PathVariable(name = "id") Integer id, @RequestBody Booking booking){
+    public BookingDto put(@PathVariable(name = "id") Integer id, @RequestBody BookingDto bookingDto){
         try {
-            booking.setId(id);
-            setFlights(booking);
-            setUser(booking);
-            return bookingService.save(booking);
+            if (bookingService.findById(id) != null){
+                Booking booking = bookingService.convertDtoToBookingUpdate(bookingDto, id);
+                return bookingService.save(booking);
+            }
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
         }
         catch (Exception e){
             throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
         }
     }
-    void setFlights(Booking booking){
-        List<Flight> flightList = booking.getFlights();
-        for (Integer i = 0;i<flightList.size();i++) {
-            if (flightService.findById(flightList.get(i).getId()) == null){
-                throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
-            }
-            Flight flight1 = flightService.findByIdd(flightList.get(i).getId());
-            booking.getFlights().set(i,flight1);
-        }
-    }
-    void setUser(Booking booking){
-        User user = booking.getUser();
-        if (userService.findById(user.getId()) == null){
-            throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
-        }
-        User user1 = userService.findByIdd(user.getId());
-        booking.setUser(user1);
-    }
     @DeleteMapping("/{id}")
-    public BookingDTO delete(@PathVariable(name = "id") Integer id){
-        BookingDTO bookingDTO = bookingService.findById(id);
+    public BookingDto delete(@PathVariable(name = "id") Integer id){
+        BookingDto bookingDTO = bookingService.findById(id);
         if (bookingDTO != null){
             bookingService.deleteById(id);
             return bookingDTO;
         }
         throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+    }
+    @DeleteMapping
+    public List<BookingDto> deleteAll(){
+        try {
+            return bookingService.deleteAll();
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+        }
     }
 }

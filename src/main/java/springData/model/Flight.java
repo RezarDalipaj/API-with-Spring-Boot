@@ -17,7 +17,7 @@ public class Flight {
     private String destination;
     @Column
     private String airline;
-    @Column
+    @Column(unique = true, nullable = false)
     private Integer flightNumber;
     @Column
     private Date departureDate;
