@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class UserDto {
     private String userName;
@@ -11,10 +13,10 @@ public class UserDto {
     private String password;
     private String firstName;
     private String lastName;
-    private String role;
     private String phoneNumber;
     private String email;
-
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private List<String> roles;
     public String getPassword() {
         return password;
     }
@@ -47,13 +49,6 @@ public class UserDto {
         this.lastName = lastName;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -71,13 +66,20 @@ public class UserDto {
         this.email = email;
     }
 
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
                 "userName='" + userName + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", role='" + role + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", email='" + email + '\'' +
                 '}';

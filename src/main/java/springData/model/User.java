@@ -1,14 +1,10 @@
 package springData.model;
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table
-//@NamedQueries({
-//        @NamedQuery(name = "flightsOfAUser", query = "SELECT flight_id FROM user_flight uf WHERE uf.user_id = :userId"),
-//        @NamedQuery(name = "bookingsOfAUser", query = "SELECT b FROM booking b WHERE user_id = :userId"),
-//        @NamedQuery(name = "usersOfAFlight", query = "SELECT user_id FROM user_flight uf WHERE uf.flight_id = :flightId")
-//})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,13 +14,12 @@ public class User {
     private String userName;
     @Column
     private String password;
-    @Column
-    private String role;
     @OneToOne(mappedBy = "theUser", cascade = CascadeType.ALL)
     private UserDetails userDetails;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Booking> bookings;
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    private Collection<Role> roles;
 
     public Integer getId() {
         return id;
@@ -50,14 +45,6 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public UserDetails getUserDetails() {
         return userDetails;
     }
@@ -74,13 +61,20 @@ public class User {
         this.bookings = bookings;
     }
 
+    public Collection<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
                 ", userdetails: first name="+ userDetails.getFirstName() + ", last name="+ userDetails.getLastName() + ", email="+ userDetails.getEmail() + ", phone number="+ userDetails.getPhoneNumber() +
                 '}';
     }

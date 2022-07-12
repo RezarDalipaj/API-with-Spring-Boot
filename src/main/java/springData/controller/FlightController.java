@@ -1,9 +1,12 @@
 package springData.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import springData.dto.BookingDto;
 import springData.dto.FlightDto;
+import springData.dto.UserDto;
 import springData.model.Flight;
 import springData.service.FlightService;
 
@@ -27,13 +30,38 @@ public class FlightController {
     }
     @GetMapping("/{id}")
     public FlightDto getById(@PathVariable(name = "id") Integer id){
-        FlightDto flightDTO = flightService.findById(id);
-        if (flightDTO != null){
-            return flightDTO;
+        try {
+            FlightDto flightDTO = flightService.findById(id);
+            if (flightDTO != null){
+                return flightDTO;
+            }
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Flight doesn't exist");
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
         }
-        throw  new ResponseStatusException(HttpStatus.resolve(404), "Flight doesn't exist");
+    }
+    @GetMapping("/{id}/bookings")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<BookingDto> getBookingsOfAFlight(@PathVariable(name = "id") Integer id){
+        try {
+            List<BookingDto> bookingDtoList = flightService.findAllBookings(id);
+            return bookingDtoList;
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
+        }
+    }
+    @GetMapping("/{id}/users")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<UserDto> getUsersOfAFlight(@PathVariable(name = "id") Integer id){
+        try {
+            List<UserDto> userDtoList = flightService.findAllUsers(id);
+            return userDtoList;
+        }catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
+        }
     }
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public FlightDto post(@RequestBody FlightDto flightDto){
         try {
         if (flightDto.getFlightNumber() == null)
@@ -45,7 +73,9 @@ public class FlightController {
             throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
         }
     }
+
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public FlightDto put(@PathVariable(name = "id") Integer id, @RequestBody FlightDto flightDto){
         try {
             if (flightDto.getFlightNumber() == null)
@@ -63,15 +93,21 @@ public class FlightController {
         }
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public FlightDto delete(@PathVariable(name = "id") Integer id){
-        FlightDto flightDTO = flightService.findById(id);
-        if (flightDTO != null){
-            flightService.deleteById(id);
-            return flightDTO;
+        try {
+            FlightDto flightDTO = flightService.findById(id);
+            if (flightDTO != null){
+                flightService.deleteById(id);
+                return flightDTO;
+            }
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+        }catch (Exception e){
+            throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
         }
-        throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
     }
     @DeleteMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<FlightDto> deleteAll(){
         try {
             return flightService.deleteAll();

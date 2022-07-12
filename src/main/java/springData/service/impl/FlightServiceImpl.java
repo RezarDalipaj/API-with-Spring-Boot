@@ -1,11 +1,17 @@
-package springData.service.Impl;
+package springData.service.impl;
 
+import org.springframework.context.annotation.Lazy;
+import springData.dto.BookingDto;
 import springData.dto.FlightDto;
+import springData.dto.UserDto;
 import springData.model.Flight;
 import springData.repository.FlightRepository;
+import springData.service.BookingService;
 import springData.service.FlightService;
 import org.springframework.stereotype.Service;
+import springData.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,19 +20,22 @@ import java.util.stream.Collectors;
 public class FlightServiceImpl implements FlightService {
     private FlightRepository flightRepository;
     private FlightDto flightDTO;
-    FlightServiceImpl(FlightRepository flightRepository, FlightDto flightDTO){
+    private UserService userService;
+    private BookingService bookingService;
+    FlightServiceImpl(FlightRepository flightRepository, FlightDto flightDTO, @Lazy UserService userService, @Lazy BookingService bookingService){
         this.flightRepository = flightRepository;
         this.flightDTO = flightDTO;
+        this.userService = userService;
+        this.bookingService = bookingService;
     }
-//    FlightRepository flights = new FlightRepositoryImpl();
     public FlightDto save(Flight f){
-        return converter(flightRepository.save(f));
+        return convertFlightToDto(flightRepository.save(f));
     }
     public FlightDto findById(Integer id){
         Optional<Flight> optionalFlight = flightRepository.findById(id);
         if (optionalFlight.isPresent()){
             Flight flight = optionalFlight.get();
-            return converter(flight);
+            return convertFlightToDto(flight);
         }
         return null;
     }
@@ -39,7 +48,7 @@ public class FlightServiceImpl implements FlightService {
         return null;
     }
     public List<FlightDto> findAll(){
-        List<FlightDto> flightDTOS = flightRepository.findAll().stream().map(this::converter).collect(Collectors.toList());
+        List<FlightDto> flightDTOS = flightRepository.findAll().stream().map(this::convertFlightToDto).collect(Collectors.toList());
         return flightDTOS;
     }
     public void delete(Flight f){
@@ -59,7 +68,7 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public FlightDto converter(Flight f1) {
+    public FlightDto convertFlightToDto(Flight f1) {
         FlightDto flightDTO = new FlightDto();
         flightDTO.setFlightNumber(f1.getFlightNumber());
         flightDTO.setAirline(f1.getAirline());
@@ -107,12 +116,24 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public List<Integer> findAllBookings(Integer id) {
-        return flightRepository.findAllById(id);
+    public List<BookingDto> findAllBookings(Integer id) {
+        List<Integer> bookingIds = flightRepository.findAllBookingsOfAFlight(id);
+        List<BookingDto> bookingDtoList = new ArrayList<>();
+        for (Integer i:bookingIds) {
+            BookingDto bookingDto = bookingService.findById(i);
+            bookingDtoList.add(bookingDto);
+        }
+        return bookingDtoList;
     }
 
     @Override
-    public List<Integer> findAllUsers(int id) {
-        return flightRepository.findAllById(id);
+    public List<UserDto> findAllUsers(Integer id) {
+        List<Integer> userIds = flightRepository.findAllUsersOfAFlight(id);
+        List<UserDto> userDtoList = new ArrayList<>();
+        for (Integer i:userIds) {
+            UserDto userDto = userService.findById(i);
+            userDtoList.add(userDto);
+        }
+        return userDtoList;
     }
 }

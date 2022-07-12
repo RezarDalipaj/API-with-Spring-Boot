@@ -1,4 +1,4 @@
-package springData.service.Impl;
+package springData.service.impl;
 
 import springData.dto.BookingDto;
 import springData.dto.FlightDto;
@@ -29,13 +29,13 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingDto save(Booking b){
         Booking booking = bookingRepository.save(b);
-        return converter(booking);
+        return convertBookingToDto(booking);
     }
     public BookingDto findById(Integer id){
         Optional<Booking> optionalBooking = bookingRepository.findById(id);
         if (optionalBooking.isPresent()){
             Booking booking = optionalBooking.get();
-            return converter(booking);
+            return convertBookingToDto(booking);
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<BookingDto> findAll(){
-        List<BookingDto> bookingDTOS = bookingRepository.findAll().stream().map(this::converter).collect(Collectors.toList());
+        List<BookingDto> bookingDTOS = bookingRepository.findAll().stream().map(this::convertBookingToDto).collect(Collectors.toList());
         return bookingDTOS;
     }
     public void delete(Booking u){
@@ -71,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto converter(Booking b) {
+    public BookingDto convertBookingToDto(Booking b) {
         BookingDto bookingDTO = new BookingDto();
         bookingDTO.setUserName(b.getUser().getUserName());
         bookingDTO.setBookingDate(b.getBookingDate());
@@ -118,11 +118,18 @@ public class BookingServiceImpl implements BookingService {
             flightDTO.setAirline(f.getAirline());
             flightDTO.setOrigin(f.getOrigin());
             flightDTO.setDestination(f.getDestination());
+            flightDTO.setFlightNumber(flightDTO.getFlightNumber());
             flightDTOList.add(flightDTO);
         }
     }
     @Override
-    public List<Integer> findAllFlights(Integer id) {
-        return bookingRepository.findAllById(id);
+    public List<FlightDto> findAllFlights(Integer id) {
+        List<Integer> flightIds = bookingRepository.findAllFlightsOfABooking(id);
+        List<FlightDto> flightDtoList = new ArrayList<>();
+        for (Integer i:flightIds) {
+            FlightDto flightDto = flightService.findById(i);
+            flightDtoList.add(flightDto);
+        }
+        return flightDtoList;
     }
 }

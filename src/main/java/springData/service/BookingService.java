@@ -1,6 +1,7 @@
 package springData.service;
 
 import springData.dto.BookingDto;
+import springData.dto.FlightDto;
 import springData.model.Booking;
 
 import java.util.List;
@@ -13,9 +14,9 @@ public interface BookingService {
     void delete(Booking booking);
     void deleteById(Integer id);
     List<BookingDto> deleteAll();
-    BookingDto converter(Booking b);
+    BookingDto convertBookingToDto(Booking b);
     Booking convertDtoToBookingAdd(BookingDto bookingDto);
     Booking convertDtoToBookingUpdate(BookingDto bookingDto, Integer id);
-    List<Integer> findAllFlights(Integer id);
+    List<FlightDto> findAllFlights(Integer id);
 
 }

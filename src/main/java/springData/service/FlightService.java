@@ -1,6 +1,8 @@
 package springData.service;
 
+import springData.dto.BookingDto;
 import springData.dto.FlightDto;
+import springData.dto.UserDto;
 import springData.model.Flight;
 
 import java.util.List;
@@ -13,11 +15,11 @@ public interface FlightService {
     void delete(Flight f);
     void deleteById(Integer id);
     List<FlightDto> deleteAll();
-    FlightDto converter(Flight f);
+    FlightDto convertFlightToDto(Flight f);
     Flight convertDtoToFlightAdd(FlightDto flightDTO);
     Flight convertDtoToFlightUpdate(FlightDto flightDTO, Integer id);
     Flight findFlightByFlightNumber(Integer flightNumber);
-    List<Integer> findAllBookings(Integer id);
-    List<Integer> findAllUsers(int id);
+    List<BookingDto> findAllBookings(Integer id);
+    List<UserDto> findAllUsers(Integer id);
 
 }

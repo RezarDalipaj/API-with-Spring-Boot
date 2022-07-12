@@ -1,4 +1,4 @@
-package springData.service.Impl;
+package springData.service.impl;
 
 import springData.model.User;
 import springData.model.UserDetails;
@@ -14,7 +14,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     UserDetailsServiceImpl(UserDetailsRepository userDetailsRepository){
         this.userDetailsRepository = userDetailsRepository;
     }
-//    UserDetailsRepository users = new UserDetailsRepositoryImpl();
     public UserDetails save(UserDetails u){
         return userDetailsRepository.save(u);
     }
@@ -42,8 +41,4 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userDetailsRepository.findAllByPhoneNumberContainsIgnoreCase(phone);
     }
 
-//    public List<UserDetails> findAll(){
-//        return users.findAll();
-//    }
-//    public void delete(UserDetails u){users.delete(u);}
 }
