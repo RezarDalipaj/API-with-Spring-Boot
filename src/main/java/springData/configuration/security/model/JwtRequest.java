@@ -1,4 +1,4 @@
-package springData.security.model;
+package springData.configuration.security.model;
 
 import java.io.Serializable;
 

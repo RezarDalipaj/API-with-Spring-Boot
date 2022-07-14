@@ -8,9 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import springData.dto.BookingDto;
 import springData.dto.FlightDto;
 import springData.model.Booking;
-import springData.model.Flight;
-import springData.model.User;
-import springData.security.config.JwtTokenUtil;
+import springData.configuration.security.config.JwtTokenUtil;
 import springData.service.BookingService;
 import springData.service.FlightService;
 import springData.service.UserService;
@@ -24,12 +22,12 @@ public class BookingController {
     BookingService bookingService;
     FlightService flightService;
     UserService userService;
-    @Autowired
     JwtTokenUtil jwtTokenUtil;
-    BookingController(BookingService bookingService, FlightService flightService, UserService userService){
+    BookingController(BookingService bookingService, FlightService flightService, UserService userService,JwtTokenUtil jwtTokenUtil){
         this.bookingService = bookingService;
         this.flightService = flightService;
         this.userService = userService;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -44,22 +42,22 @@ public class BookingController {
     @GetMapping("/{id}")
     public BookingDto getById(@PathVariable(name = "id") Integer id, HttpServletRequest request){
             BookingDto bookingDTO = bookingService.findById(id);
-            if (bookingDTO != null){
+            if (bookingDTO != null) {
                 String token = request.getHeader("Authorization").substring(7);
                 if (!(jwtTokenUtil.getUsernameFromToken(token)).equals(bookingDTO.getUserName()))
-                    throw  new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
+                    throw new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
                 return bookingDTO;
             }
-            throw  new ResponseStatusException(HttpStatus.resolve(404), "Booking doesn't exist");
+            throw new ResponseStatusException(HttpStatus.resolve(404), "Booking doesn't exist");
     }
     @GetMapping("/{id}/flights")
     public List<FlightDto> getFlightsOfABooking(@PathVariable(name = "id") Integer id, HttpServletRequest request){
             BookingDto bookingDTO = bookingService.findById(id);
             if (bookingDTO == null)
-                throw  new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
+                throw new ResponseStatusException(HttpStatus.resolve(404), "User doesn't exist");
             String token = request.getHeader("Authorization").substring(7);
             if (!(jwtTokenUtil.getUsernameFromToken(token)).equals(bookingDTO.getUserName()))
-                throw  new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
+                throw new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
             List<FlightDto> flightDtoList = bookingService.findAllFlights(id);
             return flightDtoList;
     }
@@ -99,14 +97,14 @@ public class BookingController {
     @DeleteMapping("/{id}")
     public BookingDto delete(@PathVariable(name = "id") Integer id, HttpServletRequest request){
             BookingDto bookingDTO = bookingService.findById(id);
-            if (bookingDTO != null){
+            if (bookingDTO != null) {
                 String token = request.getHeader("Authorization").substring(7);
                 if (!(jwtTokenUtil.getUsernameFromToken(token)).equals(bookingDTO.getUserName()))
-                    throw  new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
+                    throw new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
                 bookingService.deleteById(id);
                 return bookingDTO;
             }
-            throw  new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
+            throw new ResponseStatusException(HttpStatus.resolve(404), "Invalid data");
     }
     @DeleteMapping
     @PreAuthorize("hasAuthority('ADMIN')")

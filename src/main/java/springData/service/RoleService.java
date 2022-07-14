@@ -1,5 +1,6 @@
 package springData.service;
 
+import springData.dto.RoleDto;
 import springData.model.Role;
 
 import java.util.List;

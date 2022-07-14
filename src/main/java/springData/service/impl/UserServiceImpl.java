@@ -1,6 +1,6 @@
 package springData.service.impl;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import springData.dto.*;
 import springData.model.Booking;
 import springData.model.Role;
@@ -25,16 +25,18 @@ public class UserServiceImpl implements UserService {
     private UserDetailsRepository userDetailsRepository;
     private BookingService bookingService;
     private FlightService flightService;
-    @Autowired
     private RoleRepository roleRepository;
-    UserServiceImpl(UserRepository userRepository, BookingService bookingService, FlightService flightService, UserDetailsRepository userDetailsRepository) {
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    UserServiceImpl(UserRepository userRepository, BookingService bookingService, FlightService flightService, UserDetailsRepository userDetailsRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.bookingService = bookingService;
         this.flightService = flightService;
         this.userDetailsRepository = userDetailsRepository;
+        this.roleRepository = roleRepository;
     }
     public UserDto save(User u) {
         User user = userRepository.save(u);
+        logger.info("Saved User in database");
         return convertUserToDto(user);
     }
     public UserDto findById(Integer id) {
@@ -65,6 +67,7 @@ public class UserServiceImpl implements UserService {
         if (userDTO != null){
             removeUserFromPreviousRoles(u);
             userRepository.delete(u);
+            logger.info("Deleted user from database");
             return userDTO;
         }
         return null;
@@ -90,10 +93,12 @@ public class UserServiceImpl implements UserService {
         UserDto userDTO = new UserDto();
         userDTO.setUserName(u.getUserName());
         userDTO.setPassword(u.getPassword());
-        userDTO.setFirstName(u.getUserDetails().getFirstName());
-        userDTO.setLastName(u.getUserDetails().getLastName());
-        userDTO.setEmail(u.getUserDetails().getEmail());
-        userDTO.setPhoneNumber(u.getUserDetails().getPhoneNumber());
+        if(u.getUserDetails() != null){
+            userDTO.setFirstName(u.getUserDetails().getFirstName());
+            userDTO.setLastName(u.getUserDetails().getLastName());
+            userDTO.setEmail(u.getUserDetails().getEmail());
+            userDTO.setPhoneNumber(u.getUserDetails().getPhoneNumber());
+        }
         return getRoles(u, userDTO);
     }
     public UserDto getRoles(User u, UserDto userDTO){
@@ -111,8 +116,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User convertDtoToUserAdd(UserDto userDto) {
         User user = new User();
-        if (findUserByUserName(userDto.getUserName())!=null)
+        if (findUserByUserName(userDto.getUserName())!=null) {
+            logger.warn("Couldnt add user");
             return null;
+        }
         user = setUserAdd(user, userDto);
         return setRolesUser(user);
     }
@@ -124,7 +131,7 @@ public class UserServiceImpl implements UserService {
             return setUserUpdate(user, userDto);
         }
         else if (findUserByUserName(userDto.getUserName()) != null) {
-            System.out.println(user.getUserName() + " " + userDto.getUserName());
+            logger.warn("Couldnt update user");
             return null;
         }
         else
@@ -132,6 +139,7 @@ public class UserServiceImpl implements UserService {
     }
     public void createRolesIfEmpty(){
         if (roleRepository.findAll().isEmpty()){
+            logger.warn("Roles Db was empty");
             List<String> roles = List.of("ADMIN","USER","CLIENT","EMPLOYEE","GUEST","MANAGER","TEAM_LEADER");
             for (int i = 0; i < roles.size(); i++) {
                 Role role = new Role();
@@ -156,12 +164,13 @@ public class UserServiceImpl implements UserService {
                     return true;
             }
         }
+        logger.warn("ADMIN doesnt exist");
         return false;
     }
     public User setRolesUser(User user){
         createRolesIfEmpty();
         Role role;
-        if (!adminExists() && user.getUserName().equals("rezari")) {
+        if (!adminExists() && (user.getUserName().equals("rezari") || findUserByUserName("rezari")!=null)) {
             role = roleRepository.findRoleByRole("ADMIN");
         }
         else {

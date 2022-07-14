@@ -1,14 +1,13 @@
-package springData.security.controller;
+package springData.configuration.security.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.server.ResponseStatusException;
+import springData.configuration.security.model.JwtRequest;
+import springData.configuration.security.model.JwtResponse;
+import springData.configuration.security.service.JwtUserDetailsService;
 import springData.dto.UserDto;
 import springData.model.User;
-import springData.security.config.JwtTokenUtil;
-import springData.security.model.JwtRequest;
-import springData.security.model.JwtResponse;
-import springData.security.service.JwtUserDetailsService;
+import springData.configuration.security.config.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,17 +59,21 @@ public class JwtAuthenticationController {
 	}
 	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateUser(@PathVariable(name = "id") Integer id, @RequestBody UserDto user, HttpServletRequest request) throws Exception{
+		try{
 			if (userService.findById(id) == null)
-				throw  new ResponseStatusException(HttpStatus.resolve(404), "Not found");
+				throw new ResponseStatusException(HttpStatus.resolve(404), "Not found");
 			String token = request.getHeader("Authorization").substring(7);
 			if (!(jwtTokenUtil.getUsernameFromToken(token)).equals(userService.findById(id).getUserName()))
-				throw  new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
+				throw new ResponseStatusException(HttpStatus.resolve(401), "User doesn't exist");
 			if (user.getUserName() == null || user.getPassword() == null)
-				throw  new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
+				throw new ResponseStatusException(HttpStatus.resolve(400), "Invalid data");
 			User user1 = userService.convertDtoToUserUpdate(user, id);
-			if (user1!=null)
+			if (user1 != null)
 				return ResponseEntity.ok(userDetailsService.put(user, id));
-			throw  new ResponseStatusException(HttpStatus.resolve(400), "Not found");
+			throw new ResponseStatusException(HttpStatus.resolve(400), "Not found");
+		}catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.resolve(401), "Not found");
+		}
 	}
 	private void authenticate(String username, String password) throws Exception {
 		try {

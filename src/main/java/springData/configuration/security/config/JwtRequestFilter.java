@@ -1,6 +1,6 @@
-package springData.security.config;
+package springData.configuration.security.config;
 
-import springData.security.service.JwtUserDetailsService;
+import springData.configuration.security.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

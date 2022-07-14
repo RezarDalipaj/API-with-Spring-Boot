@@ -1,4 +1,4 @@
-package springData.security.config;
+package springData.configuration.security.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

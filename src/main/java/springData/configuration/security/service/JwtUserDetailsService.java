@@ -1,4 +1,4 @@
-package springData.security.service;
+package springData.configuration.security.service;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -41,8 +41,6 @@ public class JwtUserDetailsService implements UserDetailsService {
 			Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 			authorities.add(new SimpleGrantedAuthority("USER"));
 			return new User(user.getUserName(), user.getPassword(), authorities);
-//			UserDetails user1 = User.withUsername(user.getUserName()).password(user.getPassword()).roles("USER").build();
-//			return user1;
 		}
 	}
 	
